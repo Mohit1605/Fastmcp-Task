@@ -4,8 +4,9 @@ from schemas.types import JobStatus,TechnicianStatus
 from core.errors import error_response
 from core.pagination import paginate
 from core.permissions import require_scope
+from schemas.job_schemas import PaginationInput
 
-def list_jobs(cursor: int = 0,limit: int = 2):
+def list_jobs(data:PaginationInput):
   permission_error = require_scope("read")
 
   if permission_error == "UNAUTHORIZED":
@@ -27,8 +28,8 @@ def list_jobs(cursor: int = 0,limit: int = 2):
   try:
     return paginate(
       items=sorted(list(jobs.values()), key=lambda j: j.get("id", 0)),
-      cursor=cursor,
-      limit=limit
+      cursor=data.cursor,
+      limit=data.limit 
     )
 
   except Exception as e:
@@ -40,7 +41,7 @@ def list_jobs(cursor: int = 0,limit: int = 2):
     )
 
 
-def list_technicians(cursor: int = 0,limit: int = 2):
+def list_technicians(data:PaginationInput):
   permission_error = require_scope("read")
 
   if permission_error == "UNAUTHORIZED":
@@ -62,8 +63,8 @@ def list_technicians(cursor: int = 0,limit: int = 2):
   try:
     return paginate(
       items=sorted(list(technicians.values()), key=lambda j: j.get("id", 0)),
-      cursor=cursor,
-      limit=limit
+      cursor=data.cursor,
+      limit=data.limit
     )
 
   except Exception as e:
@@ -74,7 +75,7 @@ def list_technicians(cursor: int = 0,limit: int = 2):
       suggestion = f"Internal Error - {str(e)}"
     )
 
-def list_open_jobs(cursor: int = 0,limit: int = 2):
+def list_open_jobs(data:PaginationInput):
   permission_error = require_scope("read")
 
   if permission_error == "UNAUTHORIZED":
@@ -101,8 +102,8 @@ def list_open_jobs(cursor: int = 0,limit: int = 2):
 
     return paginate(
       items=open_jobs,
-      cursor=cursor,
-      limit=limit
+      cursor=data.cursor,
+      limit=data.limit
     )
 
   except Exception as e:
@@ -115,7 +116,7 @@ def list_open_jobs(cursor: int = 0,limit: int = 2):
 
 
 
-def list_available_technicians(cursor: int = 0,limit: int = 2):
+def list_available_technicians(data:PaginationInput):
   permission_error = require_scope("read")
 
   if permission_error == "UNAUTHORIZED":
@@ -142,8 +143,8 @@ def list_available_technicians(cursor: int = 0,limit: int = 2):
 
     return paginate(
       items=available_technicians,
-      cursor=cursor,
-      limit=limit
+      cursor=data.cursor,
+      limit=data.limit
     )
 
   except Exception as e:

@@ -33,3 +33,8 @@ class AssignJobResponse(BaseModel):
   error: str | None = Field(default=None,description="Human readable error message")
   code: str | None = Field(default=None,description="Machine readable error code")
   suggestion: str | None = Field(default=None,description="Suggested resolution")
+
+
+class PaginationInput(BaseModel):
+    cursor: int = Field(default=0, ge=0)
+    limit: int = Field(default=10, ge=1, le=100)
