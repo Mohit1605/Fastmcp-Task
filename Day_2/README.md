@@ -299,13 +299,24 @@ The tests are written as small executable Python scripts rather than a single te
 - `old_server.py` is present as a legacy server file and can be kept for reference.
 - The folder names `unit test/` and `test suite/` contain spaces, so remember to quote them in shell commands.
 
-## Deep Dive Topics
+## Design Questions
 
-If you are presenting this project or explaining the design, be ready to discuss:
+### Why is cursor-based pagination safer than offset pagination for tool-driven clients?
 
-- Why cursor-based pagination is safer than offset pagination for tool-driven clients.
-- How `destructiveHint` should influence host behavior.
-- What can break if two clients update the same in-memory record concurrently.
-- How `outputSchema` helps chained agent workflows.
-- Why stdio transport still needs scope enforcement even though it is local.
+Cursor pagination stays stable when records are added or removed between requests, so clients are less likely to skip or repeat items. Offset pagination can drift as the dataset changes, which makes it a poor fit for MCP tools that may be called repeatedly by agents.
 
+### How should `destructiveHint` influence host behavior?
+
+`destructiveHint: true` tells the host that a tool may change or remove important data, so it should treat the tool as high risk. A good host can respond by asking for confirmation, showing a stronger warning, or limiting automatic execution.
+
+### What can break if two clients update the same in-memory record concurrently?
+
+Concurrent writes can cause lost updates, stale reads, or inconsistent state if both clients read the same value and then overwrite each other. In a real system, this is usually fixed with locking, transactions, version checks, or another concurrency control strategy.
+
+### How does `outputSchema` help chained agent workflows?
+
+`outputSchema` gives the agent a predictable structure to parse, so the next tool call can use fields without guessing where the data lives. For example, a `create_job` result can feed its `job.id` directly into `assign_job` without brittle text parsing.
+
+### Why must stdio transport still enforce scope checks even though it is local?
+
+Local transport does not mean trusted transport, because the same server may be called by different agents, scripts, or user sessions. Scope checks still protect the data model from accidental or unauthorized tool use, even when the server is running on the same machine.
